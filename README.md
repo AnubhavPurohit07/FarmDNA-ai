@@ -4,7 +4,7 @@ AI-powered platform that preserves farming decisions and transforms them into fu
 ## Tech Stack
 Frontend: React.js
 
-Backend: Node.js + Express.js
+Backend: Python/ FastAPI
 
 Database: MongoDB
 
