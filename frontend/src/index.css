@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-canvas: #FAFAF7;
+  --color-surface: #FFFFFF;
+  --color-ink: #1C1F1A;
+  --color-accent: #3F6B3F;
+  --color-accent-dark: #2E5230;
+  --color-muted: #6B7264;
+  --color-line: #E3E2DC;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
