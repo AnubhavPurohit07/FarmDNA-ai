@@ -1,9 +1,10 @@
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 
-// Local image imports — place these files in src/assets/images/
-import heroFarm from "../assets/images/img1.jpg";
-
+import heroFarm from "../assets/images/hero-farm.jpg";
+import cardWheat from "../assets/images/card-wheat.jpg";
+import cardIrrigation from "../assets/images/card-irrigation.jpg";
+import cardJournal from "../assets/images/card-journal.jpg";
 
 const PREVIEW_ENTRIES = [
   {
@@ -20,7 +21,7 @@ const PREVIEW_ENTRIES = [
     description:
       "Waited out an early monsoon false start. Avoided the seedling loss neighbors saw that year.",
     image: cardWheat,
-    imageAlt: "Cotton field during kharif season",
+    imageAlt: "Wheat field during season",
   },
   {
     tag: "Karnataka · Tomato · 2025",
