@@ -1,0 +1,353 @@
+{
+  "info": {
+    "name": "FarmDNA API — Week 4",
+    "_postman_id": "f4a7d3b0-1234-4abc-9def-farmdna-week4",
+    "description": "Collection covering all FarmDNA Decision Journal API endpoints, each with a saved example response captured from a real run of the backend on http://localhost:8000.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" }
+  ],
+  "item": [
+    {
+      "name": "1. List all entries",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/entries",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK - list of entries",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/entries",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "[\n  {\n    \"title\": \"Switched to drip irrigation mid-season\",\n    \"crop\": \"Wheat\",\n    \"region\": \"Punjab\",\n    \"season\": \"Rabi 2025\",\n    \"decision\": \"Switched from flood irrigation to drip irrigation\",\n    \"reason\": \"Forecast showed a dry spell for the next 3 weeks\",\n    \"outcome\": \"Reduced water use by 30%. Yield held steady, soil stayed workable through harvest.\",\n    \"status\": \"success\",\n    \"id\": 1,\n    \"created_at\": \"2025-03-12T09:30:00Z\"\n  },\n  {\n    \"title\": \"Delayed sowing by two weeks\",\n    \"crop\": \"Cotton\",\n    \"region\": \"Maharashtra\",\n    \"season\": \"Kharif 2025\",\n    \"decision\": \"Waited two weeks after the first monsoon signal before sowing\",\n    \"reason\": \"Early monsoon onset looked unstable, risk of a false start\",\n    \"outcome\": \"Avoided the seedling loss neighboring farms saw that year.\",\n    \"status\": \"success\",\n    \"id\": 2,\n    \"created_at\": \"2025-06-18T11:00:00Z\"\n  }\n]"
+        }
+      ]
+    },
+    {
+      "name": "2. Get single entry by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/entries/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries", "1"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK - single entry",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/entries/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries", "1"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"title\": \"Switched to drip irrigation mid-season\",\n  \"crop\": \"Wheat\",\n  \"region\": \"Punjab\",\n  \"season\": \"Rabi 2025\",\n  \"decision\": \"Switched from flood irrigation to drip irrigation\",\n  \"reason\": \"Forecast showed a dry spell for the next 3 weeks\",\n  \"outcome\": \"Reduced water use by 30%. Yield held steady, soil stayed workable through harvest.\",\n  \"status\": \"success\",\n  \"id\": 1,\n  \"created_at\": \"2025-03-12T09:30:00Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. Get entry - not found",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/entries/999",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries", "999"]
+        }
+      },
+      "response": [
+        {
+          "name": "404 Not Found",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/entries/999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries", "999"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"detail\": \"Entry with id 999 not found\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. Create new entry",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Tried intercropping with legumes\",\n  \"crop\": \"Maize\",\n  \"region\": \"Uttar Pradesh\",\n  \"season\": \"Kharif 2026\",\n  \"decision\": \"Planted cowpea between maize rows\",\n  \"reason\": \"Wanted to improve soil nitrogen naturally\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/entries",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries"]
+        }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "originalRequest": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/entries",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tried intercropping with legumes\",\n  \"crop\": \"Maize\",\n  \"region\": \"Uttar Pradesh\",\n  \"season\": \"Kharif 2026\",\n  \"decision\": \"Planted cowpea between maize rows\",\n  \"reason\": \"Wanted to improve soil nitrogen naturally\"\n}"
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"title\": \"Tried intercropping with legumes\",\n  \"crop\": \"Maize\",\n  \"region\": \"Uttar Pradesh\",\n  \"season\": \"Kharif 2026\",\n  \"decision\": \"Planted cowpea between maize rows\",\n  \"reason\": \"Wanted to improve soil nitrogen naturally\",\n  \"outcome\": null,\n  \"status\": \"pending\",\n  \"id\": 6,\n  \"created_at\": \"2026-06-24T12:15:57Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "5. Create entry - validation error",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"a\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/entries",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries"]
+        }
+      },
+      "response": [
+        {
+          "name": "400 Bad Request",
+          "originalRequest": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/entries",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"a\"\n}"
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"detail\": \"Validation error\",\n  \"errors\": [\n    {\n      \"type\": \"string_too_short\",\n      \"loc\": [\"body\", \"title\"],\n      \"msg\": \"String should have at least 3 characters\",\n      \"input\": \"a\",\n      \"ctx\": { \"min_length\": 3 }\n    },\n    {\n      \"type\": \"missing\",\n      \"loc\": [\"body\", \"crop\"],\n      \"msg\": \"Field required\",\n      \"input\": { \"title\": \"a\" }\n    },\n    {\n      \"type\": \"missing\",\n      \"loc\": [\"body\", \"region\"],\n      \"msg\": \"Field required\",\n      \"input\": { \"title\": \"a\" }\n    },\n    {\n      \"type\": \"missing\",\n      \"loc\": [\"body\", \"season\"],\n      \"msg\": \"Field required\",\n      \"input\": { \"title\": \"a\" }\n    },\n    {\n      \"type\": \"missing\",\n      \"loc\": [\"body\", \"decision\"],\n      \"msg\": \"Field required\",\n      \"input\": { \"title\": \"a\" }\n    },\n    {\n      \"type\": \"missing\",\n      \"loc\": [\"body\", \"reason\"],\n      \"msg\": \"Field required\",\n      \"input\": { \"title\": \"a\" }\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "6. Update an entry",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"success\",\n  \"outcome\": \"Soil nitrogen improved, maize yield up slightly.\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/entries/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries", "1"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK - updated entry",
+          "originalRequest": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/api/entries/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"success\",\n  \"outcome\": \"Soil nitrogen improved, maize yield up slightly.\"\n}"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"title\": \"Switched to drip irrigation mid-season\",\n  \"crop\": \"Wheat\",\n  \"region\": \"Punjab\",\n  \"season\": \"Rabi 2025\",\n  \"decision\": \"Switched from flood irrigation to drip irrigation\",\n  \"reason\": \"Forecast showed a dry spell for the next 3 weeks\",\n  \"outcome\": \"Soil nitrogen improved, maize yield up slightly.\",\n  \"status\": \"success\",\n  \"id\": 1,\n  \"created_at\": \"2025-03-12T09:30:00Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "7. Search entries by keyword",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/entries/search?q=wheat",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries", "search"],
+          "query": [{ "key": "q", "value": "wheat" }]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK - search results",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/entries/search?q=wheat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries", "search"],
+              "query": [{ "key": "q", "value": "wheat" }]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "[\n  {\n    \"title\": \"Switched to drip irrigation mid-season\",\n    \"crop\": \"Wheat\",\n    \"region\": \"Punjab\",\n    \"season\": \"Rabi 2025\",\n    \"decision\": \"Switched from flood irrigation to drip irrigation\",\n    \"reason\": \"Forecast showed a dry spell for the next 3 weeks\",\n    \"outcome\": \"Reduced water use by 30%. Yield held steady, soil stayed workable through harvest.\",\n    \"status\": \"success\",\n    \"id\": 1,\n    \"created_at\": \"2025-03-12T09:30:00Z\"\n  },\n  {\n    \"title\": \"Planted a new pest-resistant wheat variety\",\n    \"crop\": \"Wheat\",\n    \"region\": \"Haryana\",\n    \"season\": \"Rabi 2026\",\n    \"decision\": \"Trying HD-3226 variety this season instead of the usual seed stock\",\n    \"reason\": \"Heard from a nearby farmer it resists the rust disease better\",\n    \"outcome\": null,\n    \"status\": \"pending\",\n    \"id\": 5,\n    \"created_at\": \"2026-01-10T07:45:00Z\"\n  }\n]"
+        }
+      ]
+    },
+    {
+      "name": "8. Delete an entry",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/entries/2",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries", "2"]
+        }
+      },
+      "response": [
+        {
+          "name": "204 No Content",
+          "originalRequest": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/entries/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries", "2"]
+            }
+          },
+          "status": "No Content",
+          "code": 204,
+          "header": [],
+          "body": ""
+        }
+      ]
+    },
+    {
+      "name": "9. Delete entry - not found",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/entries/999",
+          "host": ["{{base_url}}"],
+          "path": ["api", "entries", "999"]
+        }
+      },
+      "response": [
+        {
+          "name": "404 Not Found",
+          "originalRequest": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/entries/999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "entries", "999"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"detail\": \"Entry with id 999 not found\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "10. Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"status\": \"ok\"\n}"
+        }
+      ]
+    }
+  ]
+}
