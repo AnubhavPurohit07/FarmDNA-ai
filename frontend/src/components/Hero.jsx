@@ -52,10 +52,6 @@ export default function Hero({
               </span>
             </div>
           )}
-          {/* corner tag, echoes the "field note" signature */}
-          <span className="absolute -top-3 -left-3 bg-(--color-ink) text-(--color-canvas) font-mono text-[10px] tracking-widest px-2 py-1 rounded">
-            ENTRY
-          </span>
         </div>
       </div>
     </section>
