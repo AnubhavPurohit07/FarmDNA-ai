@@ -20,14 +20,10 @@ cd backend
 python -m venv venv
 
 # 3. Activate it
-source venv/bin/activate          # macOS/Linux
-source venv/Scripts/activate      # Windows, Git Bash
-venv\Scripts\Activate.ps1         # Windows, PowerShell
-venv\Scripts\activate.bat         # Windows, Command Prompt
+venv\Scripts\Activate.ps1
 
 # 4. Copy the example environment file and adjust if needed
-cp .env.example .env              # macOS/Linux/Git Bash
-copy .env.example .env            # Windows Command Prompt
+copy .env.example .env
 
 # 5. Install dependencies
 pip install -r requirements.txt
