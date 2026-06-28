@@ -2,8 +2,7 @@
 
 ## Week 3: Backend and API Development
 
-FastAPI backend serving the Decision Journal data. Uses in-memory data for
-now — a real database (Week 5) will replace this.
+FastAPI backend serving the Decision Journal data. Uses in-memory data for now.
 
 ### Stack
 - Python 3 + FastAPI
