@@ -15,12 +15,20 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from app.routes import entries
+from app.db.connection import ping_database
 
 app = FastAPI(
     title="FarmDNA API",
     description="Backend API for FarmDNA — an agricultural knowledge preservation platform.",
-    version="0.1.0",
+    version="0.2.0",
 )
+
+
+@app.on_event("startup")
+async def startup_db_check():
+    """Verify the MongoDB connection works before the app starts serving requests."""
+    await ping_database()
+    print("✓ Connected to MongoDB Atlas successfully.")
 
 # ─── CORS ────────────────────────────────────────────────────────────────
 # Allows the React frontend (running on Vite's dev server) to call this API.
