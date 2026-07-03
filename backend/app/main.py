@@ -27,11 +27,13 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_db_check():
     """Verify the MongoDB connection works before the app starts serving requests."""
-    await ping_database()
-    print("✓ Connected to MongoDB Atlas successfully.")
+    try:
+        await ping_database()
+        print("✓ Connected to MongoDB Atlas successfully.")
+    except Exception as e:
+        print(f"⚠ Database ping failed on startup: {e}")
+        print("Server will still start — connection will be retried on first request.")
 
-# ─── CORS ────────────────────────────────────────────────────────────────
-# Allows the React frontend (running on Vite's dev server) to call this API.
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -46,7 +48,6 @@ app.add_middleware(
 )
 
 
-# ─── Error handling ──────────────────────────────────────────────────────
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """
@@ -68,7 +69,6 @@ async def general_exception_handler(request: Request, exc: Exception):
     )
 
 
-# ─── Routes ──────────────────────────────────────────────────────────────
 app.include_router(entries.router)
 
 

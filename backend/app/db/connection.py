@@ -1,10 +1,3 @@
-"""
-MongoDB connection setup using Motor (async driver for FastAPI).
-
-Reads MONGO_URI from environment variables (.env file).
-Provides a single shared database client used across the app.
-"""
-
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
@@ -20,7 +13,8 @@ if not MONGO_URI:
         "MongoDB Atlas connection string."
     )
 
-client = AsyncIOMotorClient(MONGO_URI)
+import certifi
+client = AsyncIOMotorClient(MONGO_URI, tlsCAFile=certifi.where())
 db = client[DB_NAME]
 
 # Collections
