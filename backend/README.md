@@ -28,7 +28,7 @@ constraint, which MongoDB supports without needing a relational engine.
 
 ### Schema diagram
 
-![FarmDNA database schema](./W5_SchemaDiagram_TBI-26100949.png)
+![FarmDNA database schema](./W5_SchemaDiagram_[TBI-26100949].png)
 
 Two collections: `users` and `entries`. Each entry has an optional
 `user_id` field referencing a `users._id` — a one-to-many relationship
