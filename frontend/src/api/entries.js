@@ -1,6 +1,6 @@
 const BASE_URL = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api/entries`
-  : "http://localhost:8000/api/entries";
+  : "https://farmdna-backend.onrender.com/api/entries";
 
 async function handleResponse(res) {
   if (res.status === 204) return null; // DELETE has no body
