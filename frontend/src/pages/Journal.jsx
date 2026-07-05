@@ -196,7 +196,7 @@ export default function Journal() {
             return (
               <article
                 key={entryId}
-                className="bg-(--color-surface) dark:bg-zinc-900 border border-(--color-line) dark:border-zinc-700 border-l-[3px] border-l-(--color-accent) rounded-md p-5"
+                className="bg-white dark:bg-zinc-900 border border-(--color-line) dark:border-zinc-700 border-l-[3px] border-l-(--color-accent) rounded-md p-5 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
