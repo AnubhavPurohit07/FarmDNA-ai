@@ -1,38 +1,34 @@
 """
-Routes for FarmDNA Decision Journal entries — now backed by MongoDB.
+Routes for FarmDNA Decision Journal entries — backed by MongoDB.
+Write operations (POST, PUT, DELETE) are protected by JWT auth.
 
-Implements 6+ REST endpoints:
-  GET    /api/entries           - list all entries
-  GET    /api/entries/search    - search entries by keyword
-  GET    /api/entries/{id}      - get a single entry
-  POST   /api/entries           - create a new entry
-  PUT    /api/entries/{id}      - update an entry
-  DELETE /api/entries/{id}      - delete an entry
-
-NOTE: The search route is declared BEFORE the /{entry_id} route.
-FastAPI matches routes in order, and "/search" would otherwise be
-swallowed by the "/{entry_id}" path parameter.
+Endpoints:
+  GET    /api/entries           - list all entries (public)
+  GET    /api/entries/search    - search entries (public)
+  GET    /api/entries/{id}      - get one entry (public)
+  POST   /api/entries           - create entry (protected)
+  PUT    /api/entries/{id}      - update entry (protected)
+  DELETE /api/entries/{id}      - delete entry (protected)
 """
 
-from fastapi import APIRouter, HTTPException, status, Query
+from fastapi import APIRouter, HTTPException, status, Query, Depends
 from bson import ObjectId
 from bson.errors import InvalidId
 from datetime import datetime, timezone
 
 from app.models.entry import Entry, EntryCreate, EntryUpdate
 from app.db.connection import entries_collection
+from app.middleware.auth_middleware import require_auth
 
 router = APIRouter(prefix="/api/entries", tags=["entries"])
 
 
 def serialize_entry(doc: dict) -> dict:
-    """Convert a MongoDB document into the shape the Entry model expects."""
     doc["_id"] = str(doc["_id"])
     return doc
 
 
 def to_object_id(entry_id: str) -> ObjectId:
-    """Convert a string ID to a MongoDB ObjectId, raising 400 if it's not valid."""
     try:
         return ObjectId(entry_id)
     except InvalidId:
@@ -42,9 +38,11 @@ def to_object_id(entry_id: str) -> ObjectId:
         )
 
 
+# ── Public routes ─────────────────────────────────────────────────────────────
+
 @router.get("", response_model=list[Entry], status_code=status.HTTP_200_OK)
 async def list_entries():
-    """Return every recorded decision journal entry."""
+    """Return all decision journal entries. Public."""
     cursor = entries_collection.find().sort("created_at", -1)
     docs = await cursor.to_list(length=None)
     return [serialize_entry(doc) for doc in docs]
@@ -52,12 +50,9 @@ async def list_entries():
 
 @router.get("/search", response_model=list[Entry], status_code=status.HTTP_200_OK)
 async def search_entries(
-    q: str = Query(..., min_length=1, description="Keyword to search for in title, crop, region, season, decision, or reason")
+    q: str = Query(..., min_length=1)
 ):
-    """
-    Search entries by keyword. Matches against title, crop, region,
-    season, decision, and reason fields (case-insensitive).
-    """
+    """Search entries by keyword. Public."""
     regex = {"$regex": q, "$options": "i"}
     query = {
         "$or": [
@@ -76,19 +71,25 @@ async def search_entries(
 
 @router.get("/{entry_id}", response_model=Entry, status_code=status.HTTP_200_OK)
 async def get_entry(entry_id: str):
-    """Return a single entry by its ID, or 404 if it doesn't exist."""
+    """Return a single entry by ID. Public."""
     oid = to_object_id(entry_id)
     doc = await entries_collection.find_one({"_id": oid})
     if not doc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Entry with id {entry_id} not found")
+        raise HTTPException(status_code=404, detail=f"Entry {entry_id} not found")
     return serialize_entry(doc)
 
 
+# ── Protected routes (require JWT) ────────────────────────────────────────────
+
 @router.post("", response_model=Entry, status_code=status.HTTP_201_CREATED)
-async def create_entry(payload: EntryCreate):
-    """Create a new decision journal entry."""
+async def create_entry(
+    payload: EntryCreate,
+    current_user: dict = Depends(require_auth),
+):
+    """Create a new entry. Requires valid JWT."""
     doc = payload.model_dump()
     doc["created_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    doc["user_id"] = current_user["user_id"]
 
     result = await entries_collection.insert_one(doc)
     new_doc = await entries_collection.find_one({"_id": result.inserted_id})
@@ -96,30 +97,34 @@ async def create_entry(payload: EntryCreate):
 
 
 @router.put("/{entry_id}", response_model=Entry, status_code=status.HTTP_200_OK)
-async def update_entry(entry_id: str, payload: EntryUpdate):
-    """Update an existing entry. Only fields provided in the request body are changed."""
+async def update_entry(
+    entry_id: str,
+    payload: EntryUpdate,
+    current_user: dict = Depends(require_auth),
+):
+    """Update an entry. Requires valid JWT."""
     oid = to_object_id(entry_id)
     updates = payload.model_dump(exclude_unset=True)
 
     if not updates:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No fields provided to update",
-        )
+        raise HTTPException(status_code=400, detail="No fields provided to update")
 
     result = await entries_collection.update_one({"_id": oid}, {"$set": updates})
     if result.matched_count == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Entry with id {entry_id} not found")
+        raise HTTPException(status_code=404, detail=f"Entry {entry_id} not found")
 
-    updated_doc = await entries_collection.find_one({"_id": oid})
-    return serialize_entry(updated_doc)
+    updated = await entries_collection.find_one({"_id": oid})
+    return serialize_entry(updated)
 
 
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_entry(entry_id: str):
-    """Delete an entry by its ID."""
+async def delete_entry(
+    entry_id: str,
+    current_user: dict = Depends(require_auth),
+):
+    """Delete an entry. Requires valid JWT."""
     oid = to_object_id(entry_id)
     result = await entries_collection.delete_one({"_id": oid})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Entry with id {entry_id} not found")
+        raise HTTPException(status_code=404, detail=f"Entry {entry_id} not found")
     return

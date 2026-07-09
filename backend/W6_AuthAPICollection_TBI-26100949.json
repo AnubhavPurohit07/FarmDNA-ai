@@ -1,0 +1,213 @@
+{
+  "info": {
+    "name": "FarmDNA Auth API — Week 6",
+    "_postman_id": "farmdna-auth-week6-tbi26100949",
+    "description": "Authentication endpoints for FarmDNA. Run Register or Login first to get a JWT token, then use it in the protected endpoint requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://farmdna-backend.onrender.com" },
+    { "key": "jwt_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Register new user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var data = pm.response.json();",
+              "if (data.access_token) {",
+              "  pm.collectionVariables.set('jwt_token', data.access_token);",
+              "  console.log('Token saved:', data.access_token.substring(0, 20) + '...');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Anubhav Purohit\",\n  \"email\": \"anubhav@farmdna.com\",\n  \"password\": \"FarmDNA@2026\",\n  \"region\": \"Uttarakhand\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api", "auth", "register"] }
+      },
+      "response": [
+        {
+          "name": "201 Created — user registered",
+          "status": "Created", "code": 201,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2N...\",\n  \"token_type\": \"bearer\",\n  \"user\": {\n    \"_id\": \"6748abc123def456789012\",\n    \"name\": \"Anubhav Purohit\",\n    \"email\": \"anubhav@farmdna.com\",\n    \"region\": \"Uttarakhand\",\n    \"created_at\": \"2026-07-09T10:00:00Z\"\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var data = pm.response.json();",
+              "if (data.access_token) {",
+              "  pm.collectionVariables.set('jwt_token', data.access_token);",
+              "  console.log('Token saved successfully.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"anubhav@farmdna.com\",\n  \"password\": \"FarmDNA@2026\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] }
+      },
+      "response": [
+        {
+          "name": "200 OK — JWT returned",
+          "status": "OK", "code": 200,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2N...\",\n  \"token_type\": \"bearer\",\n  \"user\": {\n    \"_id\": \"6748abc123def456789012\",\n    \"name\": \"Anubhav Purohit\",\n    \"email\": \"anubhav@farmdna.com\",\n    \"region\": \"Uttarakhand\",\n    \"created_at\": \"2026-07-09T10:00:00Z\"\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. Login with wrong password (401)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"anubhav@farmdna.com\",\n  \"password\": \"wrongpassword\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] }
+      },
+      "response": [
+        {
+          "name": "401 Unauthorized",
+          "status": "Unauthorized", "code": 401,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"detail\": \"Invalid email or password.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. Register duplicate email (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Another User\",\n  \"email\": \"anubhav@farmdna.com\",\n  \"password\": \"AnotherPass@123\",\n  \"region\": \"Delhi\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api", "auth", "register"] }
+      },
+      "response": [
+        {
+          "name": "400 Bad Request — duplicate email",
+          "status": "Bad Request", "code": 400,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"detail\": \"An account with this email already exists.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "5. Get current user — protected (uses JWT)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+        "url": { "raw": "{{base_url}}/api/auth/me", "host": ["{{base_url}}"], "path": ["api", "auth", "me"] }
+      },
+      "response": [
+        {
+          "name": "200 OK — user profile",
+          "status": "OK", "code": 200,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"_id\": \"6748abc123def456789012\",\n  \"name\": \"Anubhav Purohit\",\n  \"email\": \"anubhav@farmdna.com\",\n  \"region\": \"Uttarakhand\",\n  \"created_at\": \"2026-07-09T10:00:00Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "6. Access protected route without token (401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{base_url}}/api/auth/me", "host": ["{{base_url}}"], "path": ["api", "auth", "me"] }
+      },
+      "response": [
+        {
+          "name": "401 Unauthorized — no token",
+          "status": "Unauthorized", "code": 401,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"detail\": \"Not authenticated\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "7. Create entry — protected (uses JWT)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Switched to organic fertilizer\",\n  \"crop\": \"Tomato\",\n  \"region\": \"Uttarakhand\",\n  \"season\": \"Kharif 2026\",\n  \"decision\": \"Replaced chemical fertilizer with organic compost\",\n  \"reason\": \"Soil quality was degrading season over season\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/entries", "host": ["{{base_url}}"], "path": ["api", "entries"] }
+      },
+      "response": [
+        {
+          "name": "201 Created — entry saved",
+          "status": "Created", "code": 201,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"title\": \"Switched to organic fertilizer\",\n  \"crop\": \"Tomato\",\n  \"region\": \"Uttarakhand\",\n  \"season\": \"Kharif 2026\",\n  \"decision\": \"Replaced chemical fertilizer with organic compost\",\n  \"reason\": \"Soil quality was degrading season over season\",\n  \"outcome\": null,\n  \"status\": \"pending\",\n  \"user_id\": \"6748abc123def456789012\",\n  \"_id\": \"6748def456abc789012345\",\n  \"created_at\": \"2026-07-09T10:15:00Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "8. Create entry without token (401)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Unauthorized attempt\",\n  \"crop\": \"Wheat\",\n  \"region\": \"Punjab\",\n  \"season\": \"Rabi 2026\",\n  \"decision\": \"Test\",\n  \"reason\": \"Test\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/entries", "host": ["{{base_url}}"], "path": ["api", "entries"] }
+      },
+      "response": [
+        {
+          "name": "401 Unauthorized — no token",
+          "status": "Unauthorized", "code": 401,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"detail\": \"Not authenticated\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "9. Logout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+        "url": { "raw": "{{base_url}}/api/auth/logout", "host": ["{{base_url}}"], "path": ["api", "auth", "logout"] }
+      },
+      "response": [
+        {
+          "name": "200 OK — logged out",
+          "status": "OK", "code": 200,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"message\": \"Logged out successfully. Remove the token from client storage.\"\n}"
+        }
+      ]
+    }
+  ]
+}

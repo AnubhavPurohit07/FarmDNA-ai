@@ -1,35 +1,39 @@
 """
 Pydantic models for FarmDNA users.
-
-A "user" represents a farmer account. Each entry in the "entries" collection
-can reference a user via user_id, establishing the relationship:
-
-    User (1) ---- (many) Entry
-
-Full authentication (password hashing, login, JWT sessions) is implemented
-in Week 6. This week, the User model exists primarily to support the
-schema design and relationship between collections.
+Now includes password hashing via passlib/bcrypt.
 """
 
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional
 
 
-class UserBase(BaseModel):
-    """Shared fields for a user account."""
-    name: str = Field(..., min_length=2, max_length=80, examples=["Anubhav Purohit"])
-    email: EmailStr = Field(..., examples=["farmer@example.com"])
-    region: Optional[str] = Field(None, max_length=60, examples=["Punjab"])
+class UserRegister(BaseModel):
+    """Fields required to register a new user."""
+    name: str = Field(..., min_length=2, max_length=80)
+    email: EmailStr
+    password: str = Field(..., min_length=8, description="Min 8 chars")
+    region: Optional[str] = Field(None, max_length=60)
 
 
-class UserCreate(UserBase):
-    """Fields required to create a new user. Password hashing arrives in Week 6."""
-    password: str = Field(..., min_length=6, description="Plaintext for now — hashing added in Week 6 (Auth)")
+class UserLogin(BaseModel):
+    """Fields required to log in."""
+    email: EmailStr
+    password: str = Field(..., min_length=1)
 
 
-class User(UserBase):
-    """Full user document as stored and returned by the API."""
+class UserResponse(BaseModel):
+    """Safe user object returned by the API — no password field."""
     model_config = ConfigDict(populate_by_name=True)
 
-    id: str = Field(..., alias="_id", description="MongoDB ObjectId as a string")
+    id: str = Field(..., alias="_id")
+    name: str
+    email: str
+    region: Optional[str] = None
     created_at: str
+
+
+class TokenResponse(BaseModel):
+    """Returned after successful login or registration."""
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
