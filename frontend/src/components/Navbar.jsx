@@ -47,9 +47,6 @@ export default function Navbar() {
       <nav className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-mono text-xs tracking-widest text-(--color-accent) border border-(--color-accent) rounded px-1.5 py-0.5">
-            01
-          </span>
           <span className="font-display text-xl font-medium text-(--color-ink) tracking-tight">
             FarmDNA
           </span>
