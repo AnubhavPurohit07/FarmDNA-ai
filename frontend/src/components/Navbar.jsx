@@ -3,11 +3,17 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { showToast } from "./ui";
 
-const NAV_LINKS = [
+const PUBLIC_NAV = [
   { label: "Home", to: "/" },
+  { label: "Knowledge Archive", to: "/archive" },
+  { label: "About", to: "/about" },
+];
+
+const AUTH_NAV = [
+  { label: "Home", to: "/" },
+  { label: "Dashboard", to: "/dashboard" },
   { label: "Decision Journal", to: "/journal" },
   { label: "Knowledge Archive", to: "/archive" },
-  { label: "UI Showcase", to: "/showcase" },
   { label: "About", to: "/about" },
 ];
 
@@ -36,6 +42,8 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  const navLinks = user ? AUTH_NAV : PUBLIC_NAV;
+
   function handleLogout() {
     logout();
     showToast.success("Logged out successfully.");
@@ -43,18 +51,18 @@ export default function Navbar() {
   }
 
   return (
-    <header className="border-b border-(--color-line) bg-(--color-surface)/90 backdrop-blur-sm sticky top-0 z-50 transition-colors">
+    <header className="border-b border-(--color-line) bg-(--color-surface)/90 dark:bg-zinc-900/90 backdrop-blur-sm sticky top-0 z-50 transition-colors">
       <nav className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-xl font-medium text-(--color-ink) tracking-tight">
+          <span className="font-display text-xl font-medium text-(--color-ink) dark:text-zinc-100 tracking-tight">
             FarmDNA
           </span>
         </Link>
 
         {/* Nav links */}
         <ul className="hidden md:flex items-center gap-7">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <li key={link.to}>
               <NavLink
                 to={link.to}
@@ -62,7 +70,7 @@ export default function Navbar() {
                   `text-sm font-medium transition-colors ${
                     isActive
                       ? "text-(--color-accent)"
-                      : "text-(--color-muted) hover:text-(--color-ink)"
+                      : "text-(--color-muted) hover:text-(--color-ink) dark:hover:text-zinc-100"
                   }`
                 }
               >
@@ -79,7 +87,7 @@ export default function Navbar() {
             type="button"
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            className="flex items-center justify-center w-9 h-9 rounded-full border border-(--color-line) text-(--color-muted) hover:text-(--color-accent) hover:border-(--color-accent) transition-colors"
+            className="flex items-center justify-center w-9 h-9 rounded-full border border-(--color-line) dark:border-zinc-700 text-(--color-muted) hover:text-(--color-accent) hover:border-(--color-accent) transition-colors"
           >
             {theme === "dark" ? <SunIcon /> : <MoonIcon />}
           </button>
@@ -93,7 +101,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-sm font-medium text-(--color-muted) hover:text-(--color-accent) transition-colors px-3 py-1.5 border border-(--color-line) rounded-md"
+                className="text-sm font-medium text-(--color-muted) hover:text-(--color-accent) transition-colors px-3 py-1.5 border border-(--color-line) dark:border-zinc-700 rounded-md"
               >
                 Logout
               </button>
@@ -102,7 +110,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               <Link
                 to="/login"
-                className="text-sm font-medium text-(--color-muted) hover:text-(--color-ink) transition-colors"
+                className="text-sm font-medium text-(--color-muted) hover:text-(--color-ink) dark:hover:text-zinc-100 transition-colors"
               >
                 Sign in
               </Link>

@@ -8,10 +8,10 @@ import Footer from "./components/Footer";
 
 // Pages
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
 import Journal from "./pages/Journal";
 import Archive from "./pages/Archive";
 import About from "./pages/About";
-import UIShowcase from "./pages/UIShowcase";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AuthCallback from "./pages/AuthCallback";
@@ -29,12 +29,14 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/archive" element={<Archive />} />
               <Route path="/about" element={<About />} />
-              <Route path="/showcase" element={<UIShowcase />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
 
-              {/* Protected routes — require login */}
+              {/* Protected routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute><Dashboard /></ProtectedRoute>
+              } />
               <Route path="/journal" element={
                 <ProtectedRoute><Journal /></ProtectedRoute>
               } />
