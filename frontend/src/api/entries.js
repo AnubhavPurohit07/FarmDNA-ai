@@ -9,7 +9,7 @@ const BASE_URL = import.meta.env.VITE_API_URL
   : "https://farmdna-backend.onrender.com/api/entries";
 
 function authHeaders() {
-  const token = localStorage.getItem("farmdna-token");
+  const token = sessionStorage.getItem("farmdna-token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
