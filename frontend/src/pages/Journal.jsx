@@ -12,32 +12,21 @@ const STATUS_STYLES = {
 const STATUS_OPTIONS = ["pending", "success", "partial", "failure"];
 
 const EMPTY_FORM = {
-  title: "",
-  crop: "",
-  region: "",
-  season: "",
-  decision: "",
-  reason: "",
-  outcome: "",
+  title: "", crop: "", region: "", season: "",
+  decision: "", reason: "", outcome: "",
 };
 
 export default function Journal() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Create modal state
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState(EMPTY_FORM);
   const [creating, setCreating] = useState(false);
-
-  // Edit modal state
   const [editOpen, setEditOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
-  const [editForm, setEditForm] = useState(EMPTY_FORM);
+  const [editForm, setEditForm] = useState({ ...EMPTY_FORM, status: "pending" });
   const [updating, setUpdating] = useState(false);
-
-  // Delete state
   const [deletingId, setDeletingId] = useState(null);
 
   async function loadEntries() {
@@ -54,11 +43,8 @@ export default function Journal() {
     }
   }
 
-  useEffect(() => {
-    loadEntries();
-  }, []);
+  useEffect(() => { loadEntries(); }, []);
 
-  // ── Create ────────────────────────────────────────────────────────────
   function updateCreateField(field, value) {
     setCreateForm((prev) => ({ ...prev, [field]: value }));
   }
@@ -66,7 +52,7 @@ export default function Journal() {
   async function handleCreate() {
     if (!createForm.title || !createForm.crop || !createForm.region ||
         !createForm.season || !createForm.decision || !createForm.reason) {
-      showToast.error("Please fill in all required fields before saving.");
+      showToast.error("Please fill in all required fields.");
       return;
     }
     setCreating(true);
@@ -83,7 +69,6 @@ export default function Journal() {
     }
   }
 
-  // ── Edit ──────────────────────────────────────────────────────────────
   function openEdit(entry) {
     setEditingEntry(entry);
     setEditForm({
@@ -97,10 +82,6 @@ export default function Journal() {
       status: entry.status || "pending",
     });
     setEditOpen(true);
-  }
-
-  function updateEditField(field, value) {
-    setEditForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleUpdate() {
@@ -126,7 +107,6 @@ export default function Journal() {
     }
   }
 
-  // ── Delete ────────────────────────────────────────────────────────────
   async function handleDelete(entry) {
     const entryId = entry._id || entry.id;
     setDeletingId(entryId);
@@ -148,12 +128,11 @@ export default function Journal() {
           <p className="font-mono text-xs tracking-widest text-(--color-accent) mb-3">
             YOUR RECORDS
           </p>
-          <h1 className="font-display text-3xl md:text-4xl font-medium text-(--color-ink) tracking-tight">
+          <h1 className="font-display text-3xl md:text-4xl font-medium text-(--color-ink) dark:text-zinc-100 tracking-tight">
             Decision Journal
           </h1>
           <p className="mt-3 text-(--color-muted) max-w-xl leading-relaxed">
-            Record crop choices, irrigation methods, and the reasoning behind
-            each decision — then log what happened at harvest.
+            Record crop choices, irrigation methods, and the reasoning behind each decision.
           </p>
         </div>
         <Button variant="primary" onClick={() => setCreateOpen(true)}>
@@ -161,7 +140,6 @@ export default function Journal() {
         </Button>
       </div>
 
-      {/* Loading state */}
       {loading && (
         <div className="py-12 flex flex-col items-center gap-3">
           <Loader variant="spinner" size="lg" />
@@ -169,26 +147,19 @@ export default function Journal() {
         </div>
       )}
 
-      {/* Error state */}
       {!loading && error && entries.length === 0 && (
         <div className="py-12 text-center">
-          <p className="text-sm text-red-500 mb-3">
-            Couldn't load entries: {error}
-          </p>
-          <Button variant="outline" size="sm" onClick={loadEntries}>
-            Try again
-          </Button>
+          <p className="text-sm text-red-500 mb-3">Couldn't load entries: {error}</p>
+          <Button variant="outline" size="sm" onClick={loadEntries}>Try again</Button>
         </div>
       )}
 
-      {/* Empty state */}
       {!loading && !error && entries.length === 0 && (
         <div className="py-12 text-center text-(--color-muted)">
           <p>No entries yet. Add your first farming decision above.</p>
         </div>
       )}
 
-      {/* Entries list */}
       {!loading && entries.length > 0 && (
         <div className="space-y-4">
           {entries.map((entry) => {
@@ -225,16 +196,11 @@ export default function Journal() {
                     Logged {new Date(entry.created_at).toLocaleDateString()}
                   </span>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => openEdit(entry)}
-                    >
+                    <Button variant="secondary" size="sm" onClick={() => openEdit(entry)}>
                       Edit
                     </Button>
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="outline" size="sm"
                       disabled={deletingId === entryId}
                       onClick={() => handleDelete(entry)}
                     >
@@ -248,12 +214,8 @@ export default function Journal() {
         </div>
       )}
 
-      {/* ── Create Modal ── */}
-      <Modal
-        isOpen={createOpen}
-        onClose={() => { setCreateOpen(false); setCreateForm(EMPTY_FORM); }}
-        title="Log a farming decision"
-      >
+      {/* Create Modal */}
+      <Modal isOpen={createOpen} onClose={() => { setCreateOpen(false); setCreateForm(EMPTY_FORM); }} title="Log a farming decision">
         <div className="space-y-3">
           <Input label="Title" placeholder="e.g. Switched to drip irrigation"
             value={createForm.title} onChange={(e) => updateCreateField("title", e.target.value)} />
@@ -282,38 +244,31 @@ export default function Journal() {
         </div>
       </Modal>
 
-      {/* ── Edit Modal ── */}
-      <Modal
-        isOpen={editOpen}
-        onClose={() => { setEditOpen(false); setEditingEntry(null); }}
-        title="Edit entry"
-        size="lg"
-      >
+      {/* Edit Modal */}
+      <Modal isOpen={editOpen} onClose={() => { setEditOpen(false); setEditingEntry(null); }} title="Edit entry" size="lg">
         <div className="space-y-3">
           <Input label="Title" placeholder="e.g. Switched to drip irrigation"
-            value={editForm.title} onChange={(e) => updateEditField("title", e.target.value)} />
+            value={editForm.title} onChange={(e) => setEditForm(p => ({...p, title: e.target.value}))} />
           <div className="grid grid-cols-3 gap-3">
             <Input label="Crop" placeholder="Wheat"
-              value={editForm.crop} onChange={(e) => updateEditField("crop", e.target.value)} />
+              value={editForm.crop} onChange={(e) => setEditForm(p => ({...p, crop: e.target.value}))} />
             <Input label="Region" placeholder="Punjab"
-              value={editForm.region} onChange={(e) => updateEditField("region", e.target.value)} />
+              value={editForm.region} onChange={(e) => setEditForm(p => ({...p, region: e.target.value}))} />
             <Input label="Season" placeholder="Rabi 2026"
-              value={editForm.season} onChange={(e) => updateEditField("season", e.target.value)} />
+              value={editForm.season} onChange={(e) => setEditForm(p => ({...p, season: e.target.value}))} />
           </div>
           <Input label="Decision" placeholder="What did you decide to do?"
-            value={editForm.decision} onChange={(e) => updateEditField("decision", e.target.value)} />
+            value={editForm.decision} onChange={(e) => setEditForm(p => ({...p, decision: e.target.value}))} />
           <Input label="Reason" placeholder="Why did you make this decision?"
-            value={editForm.reason} onChange={(e) => updateEditField("reason", e.target.value)} />
+            value={editForm.reason} onChange={(e) => setEditForm(p => ({...p, reason: e.target.value}))} />
           <Input label="Outcome" placeholder="What happened at harvest?"
-            value={editForm.outcome} onChange={(e) => updateEditField("outcome", e.target.value)} />
+            value={editForm.outcome} onChange={(e) => setEditForm(p => ({...p, outcome: e.target.value}))} />
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-(--color-ink) dark:text-zinc-200">
-              Status
-            </label>
+            <label className="text-sm font-medium text-(--color-ink) dark:text-zinc-200">Status</label>
             <select
               value={editForm.status}
-              onChange={(e) => updateEditField("status", e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-md border border-(--color-line) dark:border-zinc-700 bg-(--color-surface) dark:bg-zinc-800 text-(--color-ink) dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-(--color-accent)"
+              onChange={(e) => setEditForm(p => ({...p, status: e.target.value}))}
+              className="w-full px-3.5 py-2.5 text-sm rounded-md border border-(--color-line) dark:border-zinc-700 bg-white dark:bg-zinc-800 text-(--color-ink) dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-(--color-accent)"
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>{s}</option>

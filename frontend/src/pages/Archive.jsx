@@ -34,7 +34,6 @@ export default function Archive() {
     loadAll();
   }, []);
 
-  // Debounced search — waits 400ms after typing stops before calling the API
   useEffect(() => {
     if (!query.trim()) {
       loadAll();
@@ -53,9 +52,7 @@ export default function Archive() {
         setSearching(false);
       }
     }, 400);
-
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   return (
@@ -63,12 +60,11 @@ export default function Archive() {
       <p className="font-mono text-xs tracking-widest text-(--color-accent) mb-3">
         SEARCHABLE RECORD
       </p>
-      <h1 className="font-display text-3xl md:text-4xl font-medium text-(--color-ink) tracking-tight">
+      <h1 className="font-display text-3xl md:text-4xl font-medium text-(--color-ink) dark:text-zinc-100 tracking-tight">
         Knowledge Archive
       </h1>
       <p className="mt-4 text-(--color-muted) max-w-xl leading-relaxed">
-        Search decisions and outcomes recorded by farmers facing similar
-        crops, regions, or seasons.
+        Search decisions and outcomes recorded by farmers facing similar crops, regions, or seasons.
       </p>
 
       <div className="mt-8 max-w-md">
@@ -79,37 +75,31 @@ export default function Archive() {
         />
       </div>
 
-      {/* Loading state */}
       {(loading || searching) && (
         <div className="py-12 flex flex-col items-center gap-3">
           <Loader variant="spinner" size="lg" />
-          <p className="text-sm text-(--color-muted)">
-            {searching ? "Searching..." : "Loading archive..."}
-          </p>
+          <p className="text-sm text-(--color-muted)">{searching ? "Searching..." : "Loading archive..."}</p>
         </div>
       )}
 
-      {/* Error state */}
       {!loading && !searching && error && entries.length === 0 && (
         <div className="py-12 text-center text-sm text-red-500">
           Couldn't load the archive: {error}
         </div>
       )}
 
-      {/* No results */}
       {!loading && !searching && !error && entries.length === 0 && (
         <div className="py-12 text-center text-(--color-muted)">
           No entries match "{query}". Try a different keyword.
         </div>
       )}
 
-      {/* Results grid */}
       {!loading && !searching && entries.length > 0 && (
         <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {entries.map((entry) => (
             <article
-              key={entry.id}
-              className="bg-(--color-surface) dark:bg-zinc-900 border border-(--color-line) dark:border-zinc-700 border-l-[3px] border-l-(--color-accent) rounded-md p-5 flex flex-col"
+              key={entry._id || entry.id}
+              className="bg-white dark:bg-zinc-900 border border-(--color-line) dark:border-zinc-700 border-l-[3px] border-l-(--color-accent) rounded-md p-5 flex flex-col transition-colors"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <span className="font-mono text-[10px] tracking-widest text-(--color-muted) uppercase">
