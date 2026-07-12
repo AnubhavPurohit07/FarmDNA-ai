@@ -65,9 +65,6 @@ export default function Hero({
               </span>
             </div>
           )}
-          <span className="absolute -top-3 -left-3 bg-(--color-ink) dark:bg-zinc-100 text-(--color-canvas) dark:text-zinc-900 font-mono text-[10px] tracking-widest px-2 py-1 rounded">
-            ENTRY
-          </span>
         </div>
       </div>
     </section>
