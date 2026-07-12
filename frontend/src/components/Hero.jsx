@@ -41,9 +41,6 @@ export default function Hero({
             >
               {ctaLabel}
             </button>
-            <span className="text-sm text-(--color-muted) font-mono">
-              {user ? `Welcome, ${user.name?.split(" ")[0]}` : "No account needed to browse"}
-            </span>
           </div>
         </div>
 
