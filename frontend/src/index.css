@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
-
 @theme {
   --font-display: "Fraunces", "Georgia", serif;
   --font-body: "Inter", system-ui, sans-serif;
@@ -17,7 +14,7 @@
   --color-line: #E3E2DC;
 }
 
-/* Dark mode overrides */
+/* Dark mode overrides — applied when .dark class is on <html> */
 .dark {
   --color-canvas: #0f1010;
   --color-surface: #1a1c1a;
@@ -32,4 +29,9 @@ body {
   color: var(--color-ink);
   font-family: var(--font-body);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Smooth transitions on all elements for theme switching */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
