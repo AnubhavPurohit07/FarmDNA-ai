@@ -4,10 +4,10 @@ import { Input, Loader, showToast } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 
 const STATUS_STYLES = {
-  success: "bg-green-100 text-green-800",
-  partial: "bg-amber-100 text-amber-800",
-  failure: "bg-red-100 text-red-800",
-  pending: "bg-gray-100 text-gray-700",
+  success: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
+  partial: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+  failure: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+  pending: "bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300",
 };
 
 export default function Archive() {
