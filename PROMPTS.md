@@ -134,10 +134,39 @@ recommendation sentence, while capping cost and latency.
 
 ---
 
-## SDK note
+## SDK and model notes
 
 This feature uses the current `google-genai` package (`from google import
 genai`), not the older `google-generativeai` package. The older package
 is deprecated and emits a `FutureWarning` on import directing users to
 migrate. The async client (`client.aio.models.generate_content`) is used
 throughout since FastAPI's route handlers are async.
+
+**Model changed twice during development, for reasons outside the code
+itself:**
+1. Originally built against `gemini-2.0-flash`. This model was shut down
+   by Google on June 1, 2026 — after this was originally written — and
+   began returning 404 for all requests.
+2. Switched to `gemini-2.5-flash` as a same-generation replacement. This
+   also returned 404, with an explicit message that it's "no longer
+   available to new users" — meaning newly-created API keys are blocked
+   from a model that pre-existing keys can still use.
+3. Switched to `gemini-3.1-flash-lite`, confirmed via Google's current
+   documentation as "a stable, long-term model optimized for efficiency."
+   This is the model actually in use in the submitted code.
+
+This also prompted a switch from prompt-based JSON formatting instructions
+to native schema enforcement (`response_mime_type: "application/json"` +
+`response_json_schema`), which is more reliable than asking the model to
+"return only JSON" in plain text — Gemini now constrains its own output
+structurally rather than us hoping it follows the instruction. Current
+Gemini 3.x guidance also recommends leaving `temperature`/`top_p`/`top_k`
+at their defaults rather than overriding them, since the 3.x family is
+tuned around default sampling — this replaced the `temperature=0.4`
+override used in earlier versions of this service.
+
+**Takeaway:** the third-party API layer of an AI feature is not static
+even across a few weeks of active development. Debugging "the API isn't
+working" required treating the model name and API surface as variables
+to verify directly (via a minimal standalone script) rather than assuming
+the original integration code was still valid.
