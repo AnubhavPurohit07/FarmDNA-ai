@@ -11,6 +11,7 @@ specific user's own entries only.
 
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
+import traceback
 
 from app.middleware.auth_middleware import require_auth
 from app.db.connection import entries_collection
@@ -63,6 +64,12 @@ async def get_ai_insights(current_user: dict = Depends(require_auth)):
             detail="AI service is not configured. Please contact support.",
         )
     except Exception as e:
+        # Log the real error so it's visible in Render's logs — the message
+        # shown to the user is intentionally generic, but we need to see
+        # the actual cause to debug it.
+        print(f"[AI INSIGHTS ERROR] {type(e).__name__}: {e}")
+        print(traceback.format_exc())
+
         error_str = str(e).lower()
 
         if "quota" in error_str or "rate" in error_str or "429" in error_str:
