@@ -5,10 +5,19 @@ Analyzes a user's recorded Decision Journal entries and generates
 pattern-discovery insights: what's working, what isn't, and one
 actionable recommendation for their next decision.
 
+Model history (for anyone debugging this later):
+  - gemini-2.0-flash: used originally, shut down by Google on June 1, 2026.
+  - gemini-2.5-flash: tried as a replacement, but returns 404 — restricted
+    to existing users only as of this API key's creation date.
+  - gemini-3.1-flash-lite: current choice. Documented by Google as "a
+    stable, long-term model optimized for efficiency" — a good fit for
+    this structured, low-latency synthesis task.
+
 Uses the current `google-genai` SDK (the older `google-generativeai`
-package is deprecated). Model: gemini-2.0-flash — chosen for speed and
-generous free tier, since this is a synthesis/summarization task rather
-than open-ended chat, where flash-tier quality is more than sufficient.
+package is deprecated). Response is constrained to a JSON schema natively
+via response_mime_type + response_json_schema, rather than relying on
+prompt instructions alone — this is more reliable than asking the model
+to "return only JSON" in plain text.
 """
 
 import os
@@ -18,16 +27,32 @@ from google.genai import types
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-3.1-flash-lite"
 
-# Final prompt template — see PROMPTS.md for the 3 variations tested
-# and why this one was selected.
 SYSTEM_INSTRUCTION = """You are an agricultural data analyst working inside FarmDNA, \
 a platform where farmers record their farming decisions and outcomes. \
 You analyze a single farmer's own recorded entries and surface honest, \
 specific, and useful patterns — not generic farming advice. \
 You only use information present in the entries provided. \
 If there isn't enough data to find a pattern, say so plainly rather than inventing one."""
+
+# Native JSON schema — Gemini enforces this shape directly rather than us
+# hoping the model follows a text instruction to "return only JSON".
+INSIGHTS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "patterns": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "2-3 short strings describing specific patterns noticed across the entries.",
+        },
+        "recommendation": {
+            "type": "string",
+            "description": "One specific, actionable sentence recommending what to consider next.",
+        },
+    },
+    "required": ["patterns", "recommendation"],
+}
 
 
 def get_client() -> genai.Client:
@@ -59,11 +84,9 @@ def build_prompt(entries: list[dict]) -> str:
 
 {entries_text}
 
-Based only on these entries, respond with a JSON object with exactly these keys:
-- "patterns": an array of 2-3 short strings, each describing a specific pattern you notice across these entries (e.g. what correlates with success or failure). If there's not enough data for a pattern, return an array with one string explaining that more entries are needed.
-- "recommendation": one specific, actionable sentence recommending what this farmer should consider for their next decision, grounded in their own data.
-
-Respond with ONLY the JSON object, no markdown formatting, no code fences, no extra text."""
+Based only on these entries, identify patterns and one recommendation.
+If there's not enough data for a real pattern, say so plainly in the
+patterns array instead of inventing one."""
 
 
 async def generate_insights(entries: list[dict]) -> dict:
@@ -80,15 +103,18 @@ async def generate_insights(entries: list[dict]) -> dict:
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
-            temperature=0.4,
+            response_mime_type="application/json",
+            response_json_schema=INSIGHTS_SCHEMA,
             max_output_tokens=500,
+            # Note: temperature/top_p/top_k intentionally left at defaults —
+            # Gemini 3.x models are tuned for default sampling settings.
         ),
     )
 
     raw_text = (response.text or "").strip()
 
-    # Defensive parsing: strip markdown code fences if the model adds them
-    # despite instructions not to, since this happens occasionally.
+    # Defensive parsing kept as a safety net even with schema enforcement,
+    # in case of an empty response or an unexpected wrapper.
     if raw_text.startswith("```"):
         raw_text = raw_text.split("```")[1]
         if raw_text.startswith("json"):
