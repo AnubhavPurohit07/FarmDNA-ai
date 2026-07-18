@@ -18,7 +18,7 @@ from google.genai import types
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-2.5-flash"
 
 # Final prompt template — see PROMPTS.md for the 3 variations tested
 # and why this one was selected.
