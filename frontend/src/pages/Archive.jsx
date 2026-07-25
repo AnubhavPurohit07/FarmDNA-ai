@@ -4,10 +4,10 @@ import { Input, Loader, showToast } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 
 const STATUS_STYLES = {
-  success: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-  partial: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
-  failure: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-  pending: "bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300",
+  success: "bg-green-100 text-green-800",
+  partial: "bg-amber-100 text-amber-800",
+  failure: "bg-red-100 text-red-800",
+  pending: "bg-gray-100 text-gray-700",
 };
 
 export default function Archive() {
@@ -18,36 +18,40 @@ export default function Archive() {
   const [searching, setSearching] = useState(false);
   const [expanded, setExpanded] = useState(null);
 
-  async function loadAll() {
-    setLoading(true);
-    try {
-      const data = user ? await getEntries() : await getPublicEntries();
-      setEntries(data);
-    } catch (err) {
-      showToast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => { loadAll(); }, [user]);
-
+  // Single effect handles both initial load AND search-on-change.
+  // Previously this was two separate effects that both fired on mount
+  // (one for initial load, one for the search reacting to an empty query),
+  // causing two duplicate API requests every time the page loaded.
+  // This version fires exactly one request per query/user change, debounced,
+  // and cancels stale requests if the user types again before the previous
+  // one finishes (avoids a race condition where an old response overwrites
+  // a newer one).
   useEffect(() => {
-    if (!query.trim()) { loadAll(); return; }
-    setSearching(true);
-    const timer = setTimeout(async () => {
+    let cancelled = false;
+    const isSearch = query.trim().length > 0;
+
+    async function load() {
+      isSearch ? setSearching(true) : setLoading(true);
       try {
-        const results = user
-          ? await searchEntries(query.trim())
-          : await searchPublicEntries(query.trim());
-        setEntries(results);
+        const data = isSearch
+          ? (user ? await searchEntries(query.trim()) : await searchPublicEntries(query.trim()))
+          : (user ? await getEntries() : await getPublicEntries());
+        if (!cancelled) setEntries(data);
       } catch (err) {
-        showToast.error(err.message);
+        if (!cancelled) showToast.error(err.message);
       } finally {
-        setSearching(false);
+        if (!cancelled) {
+          setLoading(false);
+          setSearching(false);
+        }
       }
-    }, 400);
-    return () => clearTimeout(timer);
+    }
+
+    const timer = setTimeout(load, isSearch ? 400 : 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [query, user]);
 
   function toggleExpand(id) {
@@ -59,10 +63,10 @@ export default function Archive() {
       <p className="font-mono text-xs tracking-widest text-(--color-accent) mb-3">
         {user ? "YOUR KNOWLEDGE" : "COMMUNITY KNOWLEDGE"}
       </p>
-      <h1 className="font-display text-3xl md:text-4xl font-medium text-(--color-ink) tracking-tight">
+      <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-medium text-(--color-ink) tracking-tight">
         Knowledge Archive
       </h1>
-      <p className="mt-4 text-(--color-muted) max-w-xl leading-relaxed">
+      <p className="mt-4 text-(--color-muted) max-w-xl leading-relaxed text-sm sm:text-base">
         {user
           ? "Search your recorded decisions and outcomes."
           : "Search decisions and outcomes from farmers across regions and seasons. Sign in to record your own."}
@@ -84,7 +88,7 @@ export default function Archive() {
       )}
 
       {!loading && !searching && entries.length === 0 && (
-        <div className="py-12 text-center text-(--color-muted)">
+        <div className="py-12 text-center text-(--color-muted) px-4">
           {query ? `No entries match "${query}".` : "No entries yet."}
         </div>
       )}
@@ -110,7 +114,7 @@ export default function Archive() {
                 `}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className="font-mono text-[10px] tracking-widest text-(--color-muted) uppercase">
+                  <span className="font-mono text-[10px] tracking-widest text-(--color-muted) uppercase break-words">
                     {entry.region} · {entry.crop}
                   </span>
                   <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_STYLES[entry.status]}`}>
@@ -118,7 +122,7 @@ export default function Archive() {
                   </span>
                 </div>
 
-                <h3 className={`font-display font-medium text-(--color-ink) leading-snug transition-all duration-300 ${isExpanded ? "text-2xl mb-4" : "text-base"}`}>
+                <h3 className={`font-display font-medium text-(--color-ink) leading-snug transition-all duration-300 ${isExpanded ? "text-xl sm:text-2xl mb-4" : "text-base"}`}>
                   {entry.title}
                 </h3>
 
@@ -126,7 +130,6 @@ export default function Archive() {
                   {entry.reason}
                 </p>
 
-                {/* Expanded content */}
                 <div
                   style={{
                     maxHeight: isExpanded ? "500px" : "0px",
