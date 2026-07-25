@@ -27,12 +27,16 @@ async function handleResponse(res) {
 
 /**
  * POST /api/ai/insights
+ * @param {string} [focusQuestion] - Optional question to steer the analysis
+ *   (e.g. "how is my wheat performing?"). If omitted, returns a general
+ *   analysis of all the user's entries.
  * Returns { patterns: string[], recommendation: string, entries_analyzed: number }
  */
-export async function generateAIInsights() {
+export async function generateAIInsights(focusQuestion) {
   const res = await fetch(`${BASE}/insights`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(focusQuestion ? { focus_question: focusQuestion } : {}),
   });
   return handleResponse(res);
 }

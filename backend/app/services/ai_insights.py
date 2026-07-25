@@ -61,10 +61,14 @@ def get_client() -> genai.Client:
     return genai.Client(api_key=GEMINI_API_KEY)
 
 
-def build_prompt(entries: list[dict]) -> str:
+def build_prompt(entries: list[dict], focus_question: str | None = None) -> str:
     """
     Construct the user-facing prompt from a farmer's journal entries.
     Formats entries as a compact, readable list the model can reason over.
+
+    focus_question: optional — when provided, the farmer is asking about
+    something specific (e.g. "how is my wheat performing?") rather than
+    wanting a fully general analysis of every entry.
     """
     if not entries:
         return "The farmer has no recorded entries yet."
@@ -80,6 +84,18 @@ def build_prompt(entries: list[dict]) -> str:
         )
     entries_text = "\n".join(lines)
 
+    if focus_question:
+        return f"""Here are this farmer's recorded decisions:
+
+{entries_text}
+
+The farmer specifically asked: "{focus_question}"
+
+Answer their question using only the entries above. If the entries don't
+contain enough information to answer what they asked, say so plainly in
+the patterns array instead of guessing. Still provide one recommendation
+relevant to their question."""
+
     return f"""Here are this farmer's recorded decisions:
 
 {entries_text}
@@ -89,14 +105,14 @@ If there's not enough data for a real pattern, say so plainly in the
 patterns array instead of inventing one."""
 
 
-async def generate_insights(entries: list[dict]) -> dict:
+async def generate_insights(entries: list[dict], focus_question: str | None = None) -> dict:
     """
     Call Gemini with the farmer's entries and return structured insights.
     Raises an exception on API failure — caller is responsible for
     converting this into an appropriate HTTP error response.
     """
     client = get_client()
-    prompt = build_prompt(entries)
+    prompt = build_prompt(entries, focus_question)
 
     response = await client.aio.models.generate_content(
         model=MODEL_NAME,

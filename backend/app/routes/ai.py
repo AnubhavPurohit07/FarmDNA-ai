@@ -10,7 +10,8 @@ specific user's own entries only.
 """
 
 from fastapi import APIRouter, HTTPException, status, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional
 import traceback
 
 from app.middleware.auth_middleware import require_auth
@@ -20,6 +21,13 @@ from app.services.ai_insights import generate_insights
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
 
+class InsightsRequest(BaseModel):
+    focus_question: Optional[str] = Field(
+        None, max_length=300,
+        description="Optional question to steer the analysis, e.g. 'how is my wheat doing?'"
+    )
+
+
 class InsightsResponse(BaseModel):
     patterns: list[str]
     recommendation: str
@@ -27,7 +35,10 @@ class InsightsResponse(BaseModel):
 
 
 @router.post("/insights", response_model=InsightsResponse, status_code=status.HTTP_200_OK)
-async def get_ai_insights(current_user: dict = Depends(require_auth)):
+async def get_ai_insights(
+    payload: InsightsRequest = InsightsRequest(),
+    current_user: dict = Depends(require_auth),
+):
     """
     Analyze the logged-in user's journal entries with Gemini and return
     pattern-discovery insights plus one actionable recommendation.
@@ -57,7 +68,7 @@ async def get_ai_insights(current_user: dict = Depends(require_auth)):
         )
 
     try:
-        result = await generate_insights(entries)
+        result = await generate_insights(entries, payload.focus_question)
     except RuntimeError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
