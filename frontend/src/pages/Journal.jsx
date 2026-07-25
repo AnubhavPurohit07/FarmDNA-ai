@@ -16,14 +16,19 @@ export default function Journal() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState(EMPTY_FORM);
   const [creating, setCreating] = useState(false);
+
   const [editOpen, setEditOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [editForm, setEditForm] = useState({ ...EMPTY_FORM, status: "pending" });
   const [updating, setUpdating] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+
+  // Delete confirmation state — was previously firing immediately with no confirmation
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function loadEntries() {
     setLoading(true);
@@ -95,33 +100,43 @@ export default function Journal() {
     }
   }
 
-  async function handleDelete(entry) {
-    const entryId = entry._id || entry.id;
-    setDeletingId(entryId);
+  // Delete flow now requires confirmation — clicking Delete opens a modal
+  // instead of firing the request immediately.
+  function requestDelete(entry) {
+    setDeleteTarget(entry);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    const entryId = deleteTarget._id || deleteTarget.id;
+    setDeleting(true);
     try {
       await deleteEntry(entryId);
       setEntries((prev) => prev.filter((e) => (e._id || e.id) !== entryId));
       showToast.success("Entry deleted.");
+      setDeleteTarget(null);
     } catch (err) {
       showToast.error(err.message);
     } finally {
-      setDeletingId(null);
+      setDeleting(false);
     }
   }
 
   return (
     <section className="mx-auto max-w-5xl px-6 py-16">
-      <div className="flex items-start justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
           <p className="font-mono text-xs tracking-widest text-(--color-accent) mb-3">YOUR RECORDS</p>
-          <h1 className="font-display text-3xl md:text-4xl font-medium text-(--color-ink) tracking-tight">
+          <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-medium text-(--color-ink) tracking-tight">
             Decision Journal
           </h1>
-          <p className="mt-3 text-(--color-muted) max-w-xl leading-relaxed">
+          <p className="mt-3 text-(--color-muted) max-w-xl leading-relaxed text-sm sm:text-base">
             Record crop choices, irrigation methods, and the reasoning behind each decision.
           </p>
         </div>
-        <Button variant="primary" onClick={() => setCreateOpen(true)}>+ New Entry</Button>
+        <Button variant="primary" onClick={() => setCreateOpen(true)} className="shrink-0">
+          + New Entry
+        </Button>
       </div>
 
       {loading && (
@@ -139,7 +154,7 @@ export default function Journal() {
       )}
 
       {!loading && !error && entries.length === 0 && (
-        <div className="py-16 text-center border border-(--color-line) border-dashed rounded-lg">
+        <div className="py-16 text-center border border-(--color-line) border-dashed rounded-lg px-4">
           <p className="font-display text-xl text-(--color-ink) mb-2">No entries yet</p>
           <p className="text-sm text-(--color-muted) mb-6">Start recording your farming decisions to build your personal knowledge base.</p>
           <Button variant="primary" onClick={() => setCreateOpen(true)}>+ Add your first entry</Button>
@@ -153,16 +168,16 @@ export default function Journal() {
             return (
               <article
                 key={entryId}
-                className="bg-(--color-surface) border border-(--color-line) border-l-[3px] border-l-(--color-accent) rounded-md p-5"
+                className="bg-(--color-surface) border border-(--color-line) border-l-[3px] border-l-(--color-accent) rounded-md p-4 sm:p-5"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4">
                   <div>
-                    <span className="font-mono text-[10px] tracking-widest text-(--color-muted) uppercase">
+                    <span className="font-mono text-[10px] tracking-widest text-(--color-muted) uppercase break-words">
                       {entry.region} · {entry.crop} · {entry.season}
                     </span>
-                    <h3 className="font-display text-lg font-medium text-(--color-ink) mt-1">{entry.title}</h3>
+                    <h3 className="font-display text-base sm:text-lg font-medium text-(--color-ink) mt-1">{entry.title}</h3>
                   </div>
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${STATUS_STYLES[entry.status]}`}>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 self-start ${STATUS_STYLES[entry.status]}`}>
                     {entry.status}
                   </span>
                 </div>
@@ -173,16 +188,14 @@ export default function Journal() {
                     <p><span className="font-medium text-(--color-ink)">Outcome:</span> {entry.outcome}</p>
                   )}
                 </div>
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <span className="font-mono text-[10px] text-(--color-muted)">
                     Logged {new Date(entry.created_at).toLocaleDateString()}
                   </span>
                   <div className="flex items-center gap-2">
                     <Button variant="secondary" size="sm" onClick={() => openEdit(entry)}>Edit</Button>
-                    <Button variant="outline" size="sm"
-                      disabled={deletingId === entryId}
-                      onClick={() => handleDelete(entry)}>
-                      {deletingId === entryId ? "Deleting..." : "Delete"}
+                    <Button variant="outline" size="sm" onClick={() => requestDelete(entry)}>
+                      Delete
                     </Button>
                   </div>
                 </div>
@@ -197,7 +210,7 @@ export default function Journal() {
         <div className="space-y-3">
           <Input label="Title" placeholder="e.g. Switched to drip irrigation"
             value={createForm.title} onChange={(e) => setCreateForm(p => ({...p, title: e.target.value}))} />
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input label="Crop" placeholder="Wheat" value={createForm.crop} onChange={(e) => setCreateForm(p => ({...p, crop: e.target.value}))} />
             <Input label="Region" placeholder="Punjab" value={createForm.region} onChange={(e) => setCreateForm(p => ({...p, region: e.target.value}))} />
             <Input label="Season" placeholder="Rabi 2026" value={createForm.season} onChange={(e) => setCreateForm(p => ({...p, season: e.target.value}))} />
@@ -206,7 +219,7 @@ export default function Journal() {
           <Input label="Reason" placeholder="Why did you make this decision?" value={createForm.reason} onChange={(e) => setCreateForm(p => ({...p, reason: e.target.value}))} />
           <Input label="Outcome (optional)" placeholder="What happened at harvest?" value={createForm.outcome} onChange={(e) => setCreateForm(p => ({...p, outcome: e.target.value}))} />
         </div>
-        <div className="flex gap-3 mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button variant="primary" onClick={handleCreate} disabled={creating}>
             {creating ? "Saving..." : "Save entry"}
           </Button>
@@ -219,16 +232,15 @@ export default function Journal() {
       {/* Edit Modal */}
       <Modal isOpen={editOpen} onClose={() => { setEditOpen(false); setEditingEntry(null); }} title="Edit entry" size="lg">
         <div className="space-y-3">
-          <Input label="Title" placeholder="e.g. Switched to drip irrigation"
-            value={editForm.title} onChange={(e) => setEditForm(p => ({...p, title: e.target.value}))} />
-          <div className="grid grid-cols-3 gap-3">
-            <Input label="Crop" placeholder="Wheat" value={editForm.crop} onChange={(e) => setEditForm(p => ({...p, crop: e.target.value}))} />
-            <Input label="Region" placeholder="Punjab" value={editForm.region} onChange={(e) => setEditForm(p => ({...p, region: e.target.value}))} />
-            <Input label="Season" placeholder="Rabi 2026" value={editForm.season} onChange={(e) => setEditForm(p => ({...p, season: e.target.value}))} />
+          <Input label="Title" value={editForm.title} onChange={(e) => setEditForm(p => ({...p, title: e.target.value}))} />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Input label="Crop" value={editForm.crop} onChange={(e) => setEditForm(p => ({...p, crop: e.target.value}))} />
+            <Input label="Region" value={editForm.region} onChange={(e) => setEditForm(p => ({...p, region: e.target.value}))} />
+            <Input label="Season" value={editForm.season} onChange={(e) => setEditForm(p => ({...p, season: e.target.value}))} />
           </div>
-          <Input label="Decision" placeholder="What did you decide to do?" value={editForm.decision} onChange={(e) => setEditForm(p => ({...p, decision: e.target.value}))} />
-          <Input label="Reason" placeholder="Why did you make this decision?" value={editForm.reason} onChange={(e) => setEditForm(p => ({...p, reason: e.target.value}))} />
-          <Input label="Outcome" placeholder="What happened at harvest?" value={editForm.outcome} onChange={(e) => setEditForm(p => ({...p, outcome: e.target.value}))} />
+          <Input label="Decision" value={editForm.decision} onChange={(e) => setEditForm(p => ({...p, decision: e.target.value}))} />
+          <Input label="Reason" value={editForm.reason} onChange={(e) => setEditForm(p => ({...p, reason: e.target.value}))} />
+          <Input label="Outcome" value={editForm.outcome} onChange={(e) => setEditForm(p => ({...p, outcome: e.target.value}))} />
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-(--color-ink)">Status</label>
             <select value={editForm.status} onChange={(e) => setEditForm(p => ({...p, status: e.target.value}))}
@@ -237,11 +249,27 @@ export default function Journal() {
             </select>
           </div>
         </div>
-        <div className="flex gap-3 mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button variant="primary" onClick={handleUpdate} disabled={updating}>
             {updating ? "Saving..." : "Save changes"}
           </Button>
           <Button variant="secondary" onClick={() => { setEditOpen(false); setEditingEntry(null); }} disabled={updating}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Delete confirmation modal — new this week */}
+      <Modal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete this entry?" size="sm">
+        <p className="text-sm text-(--color-muted)">
+          Are you sure you want to delete <span className="font-medium text-(--color-ink)">"{deleteTarget?.title}"</span>?
+          This action cannot be undone.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          <Button variant="outline" onClick={confirmDelete} disabled={deleting}>
+            {deleting ? "Deleting..." : "Yes, delete it"}
+          </Button>
+          <Button variant="secondary" onClick={() => setDeleteTarget(null)} disabled={deleting}>
             Cancel
           </Button>
         </div>
