@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getPublicEntries } from "../api/entries";
 import { Loader } from "../components/ui";
 import Hero from "../components/Hero";
+import heroImage from "../assets/images/hero-farm.jpg";
 
 const STATUS_STYLES = {
   success: "bg-green-100 text-green-800",
@@ -35,9 +36,6 @@ export default function Home() {
 
   const recentEntries = useMemo(() => allEntries.slice(0, 3), [allEntries]);
 
-  // Stats computed from real data instead of fabricated marketing numbers
-  // (previously hardcoded as "5,000+ decisions", "12 states", etc. with no
-  // backing data — replaced with what's actually derivable from entries).
   const stats = useMemo(() => {
     const totalDecisions = allEntries.length;
     const regions = new Set(allEntries.map((e) => e.region).filter(Boolean));
@@ -61,7 +59,7 @@ export default function Home() {
 
   return (
     <div className="bg-(--color-canvas)">
-      <Hero />
+      <Hero imageSrc={heroImage} />
 
       {/* Stats bar — now computed from real public entries, not fabricated */}
       <section className="border-y border-(--color-line) bg-(--color-surface)">
