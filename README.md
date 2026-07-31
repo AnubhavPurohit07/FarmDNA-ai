@@ -13,10 +13,57 @@ generations.
 **Role:** AI Assigned Full Stack Intern
 **Intern ID:** TBI-26100949
 
-**Live app:** https://farm-dna-ai.vercel.app
-**Live API docs:** https://farmdna-backend.onrender.com/docs
+## Deployment
 
----
+FarmDNA is live and publicly accessible.
+
+- **Live frontend:** https://farm-dna-ai.vercel.app
+- **Live backend / API docs:** https://farmdna-backend.onrender.com/docs
+- **Live health check:** https://farmdna-backend.onrender.com/api/health
+
+### Tech stack summary
+
+| Layer | Technology | Hosting |
+|---|---|---|
+| Frontend | React 19, Vite, Tailwind CSS v4, React Router | Vercel |
+| Backend | Python, FastAPI, Uvicorn | Render |
+| Database | MongoDB Atlas (via Motor async driver) | MongoDB Atlas (managed) |
+| Auth | JWT (python-jose), bcrypt (passlib), Google OAuth (Authlib) | — |
+| AI | Google Gemini (`gemini-3.1-flash-lite`, via `google-genai` SDK) | Google AI Studio |
+| Rate limiting | slowapi | — |
+
+### Known limitations on free tier
+
+- **Render backend cold start:** the free Render instance spins down after
+  ~15 minutes of inactivity. The first request after an idle period can take
+  30–60 seconds to respond while the server wakes up — this shows up as a
+  "Failed to fetch" error on the first attempt and resolves itself if you
+  wait a moment and retry. All requests after that are fast until the next
+  idle period.
+- **MongoDB Atlas M0 (free) cluster:** capped at 512 MB storage — more than
+  enough for this project's current scale, but would need an upgrade for
+  production use at a larger scale.
+- **Gemini API free tier:** rate-limited (requests per minute and per day).
+  Under normal single-user testing this is never an issue, but rapid
+  repeated clicks on "Generate Insights" can occasionally hit the limit,
+  which surfaces as a clear "rate limit reached" error rather than a
+  silent failure.
+- **Google OAuth in "Testing" mode:** the Google Cloud OAuth consent screen
+  is currently in testing mode, meaning only email addresses explicitly
+  added as test users in Google Cloud Console can complete the Google
+  sign-in flow. Publishing the OAuth consent screen would lift this
+  restriction for any Google account.
+
+### Environment variables required in production
+
+Set these in the Render dashboard (backend) and Vercel dashboard (frontend)
+— see `backend/.env.example` for the full list with descriptions:
+
+**Render (backend):** `MONGO_URI`, `DB_NAME`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`,
+`GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `FRONTEND_URL`, `GEMINI_API_KEY`
+
+**Vercel (frontend):** `VITE_API_URL` (pointing to the Render backend URL)
+
 
 ## Project Structure
 
@@ -41,18 +88,6 @@ specific to each part of the app.
 - **Authentication** — email/password with bcrypt hashing, plus Google OAuth one-click sign-in
 - **Dashboard** — stats overview, recent entries, and on-demand AI insights
 
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite, Tailwind CSS v4, React Router |
-| Backend | FastAPI (Python), Uvicorn |
-| Database | MongoDB Atlas (via Motor async driver) |
-| Auth | JWT (python-jose) + bcrypt (passlib) + Google OAuth (Authlib) |
-| AI | Google Gemini (`gemini-3.1-flash-lite`, via `google-genai` SDK) |
-| Rate limiting | slowapi |
-| Frontend hosting | Vercel |
-| Backend hosting | Render |
 
 ## Weekly Progress
 
