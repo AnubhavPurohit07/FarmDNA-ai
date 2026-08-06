@@ -16,13 +16,13 @@ AI-powered agricultural knowledge preservation platform that helps farmers recor
 |---|---|
 | ![Home page](docs/screenshots/home.png) | ![Dashboard](docs/screenshots/Dashboard.png) |
 
-| Decision Journal | Mobile view |
+| Decision Journal | Archives |
 |---|---|
-| ![Decision Journal](docs/screenshots/Journal.png) | ![Mobile view](docs/screenshots/Mobile.png) |
+| ![Decision Journal](docs/screenshots/Journal.png) | ![Archives](docs/screenshots/Archives.png) |
 
-| Archives | Mobile view: 2 |
+| Mobile View: 1 | Mobile View: 2 |
 |---|---|
-| ![Archives](docs/screenshots/Archives.png) | ![Mobile view: 2](docs/screenshots/Mobile2.png) |
+| ![Mobile View: 1](docs/screenshots/Mobile.png) | ![Mobile view: 2](docs/screenshots/Mobile2.png) |
 
 ## Features
 
