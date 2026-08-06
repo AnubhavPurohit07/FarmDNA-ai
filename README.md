@@ -13,10 +13,12 @@ AI-powered agricultural knowledge preservation platform that helps farmers recor
 ## Screenshots
 
 <!--
-  Save 3–4 screenshots into a folder like docs/screenshots/ in the repo,
-  then replace the paths below with the real filenames. Suggested shots:
-  Home page, Dashboard with AI Insights generated, Decision Journal with
-  entries, and either Login or the mobile responsive view.
+  [Home](docs/screenshots/home.png)
+  [Dashboard](docs/screenshots/Dashboard.png)
+  [Journal](docs/screenshots/Journal.png)
+  [Archive](docs/screenshots/Archives.png)
+  [Mobile View: 1](docs/screenshots/Mobile.png)
+  [Mobile View: 2](docs/screenshots/Mobile2.png)
 -->
 
 | Home | Dashboard + AI Insights |
