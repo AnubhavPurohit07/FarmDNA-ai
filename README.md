@@ -5,6 +5,7 @@ AI-powered agricultural knowledge preservation platform that helps farmers recor
 ## Live Demo
 
 **App:** https://farm-dna-ai.vercel.app
+
 **API docs (Swagger):** https://farmdna-backend.onrender.com/docs
 
 > Note: the backend is hosted on Render's free tier, which spins down after ~15 minutes of inactivity. The first request after an idle period can take 30–60 seconds to respond while the server wakes up.
