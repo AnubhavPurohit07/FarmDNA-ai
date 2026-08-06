@@ -12,22 +12,17 @@ AI-powered agricultural knowledge preservation platform that helps farmers recor
 
 ## Screenshots
 
-<!--
-  [Home](docs/screenshots/home.png)
-  [Dashboard](docs/screenshots/Dashboard.png)
-  [Journal](docs/screenshots/Journal.png)
-  [Archive](docs/screenshots/Archives.png)
-  [Mobile View: 1](docs/screenshots/Mobile.png)
-  [Mobile View: 2](docs/screenshots/Mobile2.png)
--->
-
 | Home | Dashboard + AI Insights |
 |---|---|
-| ![Home page](docs/screenshots/home.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| ![Home page](docs/screenshots/home.png) | ![Dashboard](docs/screenshots/Dashboard.png) |
 
 | Decision Journal | Mobile view |
 |---|---|
-| ![Decision Journal](docs/screenshots/journal.png) | ![Mobile view](docs/screenshots/mobile.png) |
+| ![Decision Journal](docs/screenshots/Journal.png) | ![Mobile view](docs/screenshots/Mobile.png) |
+
+| Archives | Mobile view: 2 |
+|---|---|
+| ![Archives](docs/screenshots/Archives.png) | ![Mobile view: 2](docs/screenshots/Mobile2.png) |
 
 ## Features
 
@@ -79,18 +74,6 @@ source venv/Scripts/activate      # Windows Git Bash
 
 pip install -r requirements.txt
 cp .env.example .env
-```
-
-Open `.env` and fill in real values:
-```
-MONGO_URI=mongodb+srv://<username>:<password>@your-cluster.mongodb.net/?retryWrites=true&w=majority
-DB_NAME=farmdna
-JWT_SECRET=<generate with: python -c "import secrets; print(secrets.token_hex(32))">
-GOOGLE_CLIENT_ID=<from Google Cloud Console>
-GOOGLE_CLIENT_SECRET=<from Google Cloud Console>
-GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
-FRONTEND_URL=http://localhost:5173
-GEMINI_API_KEY=<from aistudio.google.com>
 ```
 
 Start the backend:
