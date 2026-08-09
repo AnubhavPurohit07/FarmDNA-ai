@@ -1,11 +1,3 @@
-/**
- * ProtectedRoute — wraps pages that require authentication.
- * Redirects unauthenticated users to /login.
- *
- * Usage:
- *   <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
- */
-
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Loader } from "./ui";

@@ -1,6 +1,7 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
+import certifi
 
 load_dotenv()
 
@@ -13,16 +14,12 @@ if not MONGO_URI:
         "MongoDB Atlas connection string."
     )
 
-import certifi
 client = AsyncIOMotorClient(MONGO_URI, tlsCAFile=certifi.where())
 db = client[DB_NAME]
 
-# Collections
 entries_collection = db["entries"]
 users_collection = db["users"]
 
 
 async def ping_database():
-    """Quick connectivity check — used at startup to fail fast if the
-    connection string is wrong or the cluster is unreachable."""
     await client.admin.command("ping")

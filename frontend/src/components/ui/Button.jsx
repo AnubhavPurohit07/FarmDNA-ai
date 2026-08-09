@@ -1,16 +1,3 @@
-/**
- * Button component for FarmDNA
- *
- * @param {object} props
- * @param {'primary'|'secondary'|'outline'} [props.variant='primary'] - Visual style variant
- * @param {'sm'|'md'|'lg'} [props.size='md'] - Button size
- * @param {boolean} [props.disabled=false] - Whether the button is disabled
- * @param {function} [props.onClick] - Click handler
- * @param {React.ReactNode} props.children - Button label/content
- * @param {'button'|'submit'|'reset'} [props.type='button'] - HTML button type
- * @param {string} [props.className] - Additional CSS classes
- */
-
 const VARIANTS = {
   primary:
     "bg-(--color-accent) text-white hover:bg-(--color-accent-dark) disabled:bg-(--color-muted)",

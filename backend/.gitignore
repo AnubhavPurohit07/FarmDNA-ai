@@ -1,4 +1,7 @@
 venv/
+venv_ai/
+venv_auth/
+venv_temp/
 __pycache__/
 *.pyc
 .env

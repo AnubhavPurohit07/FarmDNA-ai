@@ -1,10 +1,3 @@
-"""
-JWT utility functions for FarmDNA authentication.
-
-Uses python-jose to create and verify JWT tokens.
-JWT_SECRET is loaded from environment variables.
-"""
-
 import os
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
@@ -16,7 +9,6 @@ JWT_EXPIRY_DAYS = 7
 
 
 def create_access_token(user_id: str, email: str) -> str:
-    """Create a signed JWT token for a user."""
     payload = {
         "sub": user_id,
         "email": email,
@@ -27,10 +19,6 @@ def create_access_token(user_id: str, email: str) -> str:
 
 
 def verify_access_token(token: str) -> dict:
-    """
-    Verify and decode a JWT token.
-    Raises 401 if token is invalid or expired.
-    """
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id: str = payload.get("sub")

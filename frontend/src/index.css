@@ -16,7 +16,6 @@
   --color-line: #E3E2DC;
 }
 
-/* Dark mode overrides — applied when .dark class is on <html> */
 .dark {
   --color-canvas: #0f1010;
   --color-surface: #1a1c1a;
@@ -33,7 +32,6 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Smooth transitions on all elements for theme switching */
 *, *::before, *::after {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
