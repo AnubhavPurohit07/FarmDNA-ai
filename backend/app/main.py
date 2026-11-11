@@ -7,7 +7,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from app.routes import entries, auth, ai
+from app.routes import entries, auth, ai, agriculture
 from app.db.connection import ping_database
 
 limiter = Limiter(key_func=get_remote_address)
@@ -15,7 +15,7 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="FarmDNA API",
     description="Backend API for FarmDNA — agricultural knowledge preservation platform.",
-    version="0.4.0",
+    version="0.5.0",
 )
 
 app.state.limiter = limiter
@@ -66,11 +66,12 @@ async def startup_db_check():
 app.include_router(auth.router)
 app.include_router(entries.router)
 app.include_router(ai.router)
+app.include_router(agriculture.router)
 
 
 @app.get("/", tags=["health"])
 def root():
-    return {"message": "FarmDNA API is running.", "docs": "/docs", "version": "0.4.0"}
+    return {"message": "FarmDNA API is running.", "docs": "/docs", "version": "0.5.0"}
 
 
 @app.get("/api/health", tags=["health"])

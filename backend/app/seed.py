@@ -4,8 +4,8 @@ Seed script — populates the MongoDB "entries" collection with sample data.
 Run once after setting up your database:
     python -m app.seed
 
-Safe to re-run: it clears the entries collection first, so you won't get
-duplicate seed data if you run it more than once.
+Safe to re-run: uses a stable seed marker and upserts sample records without
+deleting or overwriting user-created entries.
 """
 
 import asyncio
@@ -23,6 +23,7 @@ SEED_ENTRIES = [
         "outcome": "Reduced water use by 30%. Yield held steady, soil stayed workable through harvest.",
         "status": "success",
         "user_id": None,
+        "is_public": True,
         "created_at": "2025-03-12T09:30:00Z",
     },
     {
@@ -35,6 +36,7 @@ SEED_ENTRIES = [
         "outcome": "Avoided the seedling loss neighboring farms saw that year.",
         "status": "success",
         "user_id": None,
+        "is_public": True,
         "created_at": "2025-06-18T11:00:00Z",
     },
     {
@@ -47,6 +49,7 @@ SEED_ENTRIES = [
         "outcome": "Higher yield, but pest pressure increased noticeably partway through the season.",
         "status": "partial",
         "user_id": None,
+        "is_public": True,
         "created_at": "2025-04-02T08:15:00Z",
     },
     {
@@ -59,6 +62,7 @@ SEED_ENTRIES = [
         "outcome": "Pest infestation increased later in the season, lowering yield by an estimated 15%.",
         "status": "failure",
         "user_id": None,
+        "is_public": True,
         "created_at": "2024-09-05T14:20:00Z",
     },
     {
@@ -71,6 +75,7 @@ SEED_ENTRIES = [
         "outcome": None,
         "status": "pending",
         "user_id": None,
+        "is_public": True,
         "created_at": "2026-01-10T07:45:00Z",
     },
 ]
@@ -78,14 +83,16 @@ SEED_ENTRIES = [
 
 async def seed():
     await ping_database()
-    print("Connected. Clearing existing entries...")
-    await entries_collection.delete_many({})
-
-    print(f"Inserting {len(SEED_ENTRIES)} sample entries...")
-    await entries_collection.insert_many(SEED_ENTRIES)
-
-    count = await entries_collection.count_documents({})
-    print(f"Done. entries collection now has {count} documents.")
+    print("Connected. Upserting public demonstration entries...")
+    for index, entry in enumerate(SEED_ENTRIES):
+        seed_key = f"farmdna-demo-{index + 1}"
+        await entries_collection.update_one(
+            {"seed_key": seed_key},
+            {"$setOnInsert": {**entry, "seed_key": seed_key}},
+            upsert=True,
+        )
+    count = await entries_collection.count_documents({"seed_key": {"$exists": True}})
+    print(f"Done. {count} demonstration entries are available; existing user records were not modified.")
 
 
 if __name__ == "__main__":

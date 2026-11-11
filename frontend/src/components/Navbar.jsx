@@ -14,6 +14,7 @@ const AUTH_NAV = [
   { label: "Home", to: "/" },
   { label: "Dashboard", to: "/dashboard" },
   { label: "Decision Journal", to: "/journal" },
+  { label: "Farm Tools", to: "/agriculture" },
   { label: "Knowledge Archive", to: "/archive" },
   { label: "About", to: "/about" },
 ];

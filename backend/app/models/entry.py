@@ -19,6 +19,7 @@ class EntryBase(BaseModel):
     reason: str = Field(..., min_length=5)
     outcome: Optional[str] = Field(None)
     status: OutcomeStatus = Field(default=OutcomeStatus.pending)
+    is_public: bool = Field(default=False, description="Share this entry with the community archive")
 
 
 class EntryCreate(EntryBase):
@@ -34,6 +35,7 @@ class EntryUpdate(BaseModel):
     reason: Optional[str] = Field(None, min_length=5)
     outcome: Optional[str] = None
     status: Optional[OutcomeStatus] = None
+    is_public: Optional[bool] = None
 
 
 class Entry(EntryBase):

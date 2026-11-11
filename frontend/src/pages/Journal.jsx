@@ -10,7 +10,7 @@ const STATUS_STYLES = {
 };
 
 const STATUS_OPTIONS = ["pending", "success", "partial", "failure"];
-const EMPTY_FORM = { title: "", crop: "", region: "", season: "", decision: "", reason: "", outcome: "" };
+const EMPTY_FORM = { title: "", crop: "", region: "", season: "", decision: "", reason: "", outcome: "", is_public: false };
 
 export default function Journal() {
   const [entries, setEntries] = useState([]);
@@ -77,6 +77,7 @@ export default function Journal() {
       reason: entry.reason || "",
       outcome: entry.outcome || "",
       status: entry.status || "pending",
+      is_public: Boolean(entry.is_public),
     });
     setEditOpen(true);
   }
@@ -218,6 +219,7 @@ export default function Journal() {
           <Input label="Decision" placeholder="What did you decide to do?" value={createForm.decision} onChange={(e) => setCreateForm(p => ({...p, decision: e.target.value}))} />
           <Input label="Reason" placeholder="Why did you make this decision?" value={createForm.reason} onChange={(e) => setCreateForm(p => ({...p, reason: e.target.value}))} />
           <Input label="Outcome (optional)" placeholder="What happened at harvest?" value={createForm.outcome} onChange={(e) => setCreateForm(p => ({...p, outcome: e.target.value}))} />
+          <label className="flex items-start gap-2 text-sm text-(--color-muted)"><input type="checkbox" checked={createForm.is_public} onChange={(e) => setCreateForm(p => ({...p, is_public: e.target.checked}))} className="mt-1 accent-(--color-accent)" /><span>Share this entry with the community Knowledge Archive. Private by default.</span></label>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button variant="primary" onClick={handleCreate} disabled={creating}>
@@ -241,6 +243,7 @@ export default function Journal() {
           <Input label="Decision" value={editForm.decision} onChange={(e) => setEditForm(p => ({...p, decision: e.target.value}))} />
           <Input label="Reason" value={editForm.reason} onChange={(e) => setEditForm(p => ({...p, reason: e.target.value}))} />
           <Input label="Outcome" value={editForm.outcome} onChange={(e) => setEditForm(p => ({...p, outcome: e.target.value}))} />
+          <label className="flex items-start gap-2 text-sm text-(--color-muted)"><input type="checkbox" checked={Boolean(editForm.is_public)} onChange={(e) => setEditForm(p => ({...p, is_public: e.target.checked}))} className="mt-1 accent-(--color-accent)" /><span>Share this entry with the community Knowledge Archive.</span></label>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-(--color-ink)">Status</label>
             <select value={editForm.status} onChange={(e) => setEditForm(p => ({...p, status: e.target.value}))}

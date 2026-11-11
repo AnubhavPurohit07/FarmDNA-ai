@@ -19,6 +19,7 @@ db = client[DB_NAME]
 
 entries_collection = db["entries"]
 users_collection = db["users"]
+agriculture_collection = db["agriculture_predictions"]
 
 
 async def ping_database():

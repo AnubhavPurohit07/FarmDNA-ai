@@ -6,3 +6,7 @@ __pycache__/
 *.pyc
 .env
 .pytest_cache/
+
+# Generated ML artifacts (recreate with scripts/train_crop_model.py)
+models/*.joblib
+models/training_metrics.json

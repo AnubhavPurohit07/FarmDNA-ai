@@ -147,3 +147,31 @@ remains. A health check is also available at `GET /api/health`.
 - Data persists across server restarts — this is the key change from
   previous weeks.
 - `user_id` on entries is optional until Week 6 implements real login.
+
+## FarmDNA 2.0 — Agricultural Intelligence modules
+
+The new authenticated `/agriculture` page provides three workflows:
+
+1. **Crop recommendation (ML):** accepts N, P, K, temperature, humidity, pH and rainfall; returns the top three Random Forest class probabilities. This endpoint remains unavailable until the real CSV dataset is downloaded and the model is trained.
+2. **Fertilizer advisor:** classifies soil-test NPK values into broad educational screening bands. It does not prescribe fertilizer products or quantities because lab methods and local recommendations vary.
+3. **Irrigation planner:** estimates daily gross water volume from reference ET₀, crop coefficient, effective rainfall, soil-moisture signal, field area and application efficiency.
+
+All completed analyses are saved in the `agriculture_predictions` MongoDB collection, scoped to the authenticated user.
+
+### Train the crop model
+
+Run from the `backend/` directory after activating the virtual environment:
+
+```bash
+python -m scripts.download_crop_dataset
+python -m scripts.train_crop_model
+```
+
+The downloader saves the upstream 2,200-row CSV to `data/raw/Crop_Recommendation.csv`. The trainer writes `models/crop_recommender.joblib` and `models/training_metrics.json`. See `data/README.md` for dataset provenance and limitations.
+
+### Important safety and privacy behavior
+
+- Decision Journal records are private by default. Only records explicitly marked `is_public: true` are returned by public archive endpoints.
+- The sample seed script uses idempotent upserts and does not delete existing user entries.
+- `JWT_SECRET` must be replaced in `.env` with a random value of at least 32 characters before startup.
+- Agricultural outputs are educational decision-support estimates. They are not guaranteed crop outcomes or official fertilizer prescriptions.

@@ -24,7 +24,7 @@ def to_object_id(entry_id: str) -> ObjectId:
 
 @router.get("/public", response_model=list[Entry])
 async def list_public_entries():
-    cursor = entries_collection.find().sort("created_at", -1)
+    cursor = entries_collection.find({"is_public": True}).sort("created_at", -1)
     docs = await cursor.to_list(length=None)
     return [serialize_entry(doc) for doc in docs]
 
@@ -34,6 +34,7 @@ async def search_public_entries(q: str = Query(..., min_length=1)):
     regex = {"$regex": q, "$options": "i"}
     query = {"$or": [{"title": regex}, {"crop": regex}, {"region": regex},
                       {"season": regex}, {"decision": regex}, {"reason": regex}]}
+    query["is_public"] = True
     cursor = entries_collection.find(query).sort("created_at", -1)
     docs = await cursor.to_list(length=None)
     return [serialize_entry(doc) for doc in docs]

@@ -1,9 +1,13 @@
 import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from fastapi import HTTPException, status
 
-JWT_SECRET = os.getenv("JWT_SECRET", "change-this-secret-in-production")
+load_dotenv()
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET or len(JWT_SECRET) < 32 or JWT_SECRET == "your-super-secret-jwt-key-change-this":
+    raise RuntimeError("JWT_SECRET must be set in backend/.env and contain at least 32 characters.")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_DAYS = 7
 

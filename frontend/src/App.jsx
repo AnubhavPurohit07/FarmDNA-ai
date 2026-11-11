@@ -15,6 +15,7 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AuthCallback from "./pages/AuthCallback";
+import Agriculture from "./pages/Agriculture";
 
 export default function App() {
   return (
@@ -42,6 +43,9 @@ export default function App() {
                   } />
                   <Route path="/journal" element={
                     <ProtectedRoute><Journal /></ProtectedRoute>
+                  } />
+                  <Route path="/agriculture" element={
+                    <ProtectedRoute><Agriculture /></ProtectedRoute>
                   } />
                 </Routes>
               </ErrorBoundary>
