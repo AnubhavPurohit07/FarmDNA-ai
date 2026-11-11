@@ -1,0 +1,9 @@
+crop,initial,development,mid,late,source_note
+rice,1.05,1.15,1.20,0.90,Starter planning coefficient; verify local variety and water regime
+wheat,0.35,0.75,1.15,0.40,Starter planning coefficient; verify local variety and climate
+maize,0.30,0.75,1.20,0.60,Starter planning coefficient; verify local variety and climate
+cotton,0.35,0.70,1.15,0.70,Starter planning coefficient; verify local variety and climate
+tomato,0.60,0.85,1.15,0.80,Starter planning coefficient; verify local variety and climate
+potato,0.50,0.75,1.15,0.75,Starter planning coefficient; verify local variety and climate
+sugarcane,0.40,0.80,1.25,0.75,Starter planning coefficient; verify local variety and climate
+default,0.45,0.80,1.10,0.75,Generic fallback; not crop-specific
